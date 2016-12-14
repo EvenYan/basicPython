@@ -1,0 +1,55 @@
+#===================================================================
+#对WinRAR功能进行命令行式调用封装
+#===================================================================
+class WinRAR():
+    @staticmethod
+    def Compress(filesPath,rarPath,inBack=True,
+                 toPartsBySize=0,toPartsByNumberOfFiles=1):
+        u'''用WinRar压缩目录或文件，多个要压缩的文件路径用空格隔开
+ 
+        filesPath=>要压缩的文件或文件夹的路径，可以是用空格隔开的多个路径，若路径中有空格，请用引号引起来，支持通配符
+        rarPath=>要压缩到的压缩包的文件路径，这个文件可以存在也可以不存在
+        inBack=>指示是否将压缩工作转到后台进行
+        toPartsBySize=>指示如果分卷压缩时的每卷大小，以字节为单位
+        toPartsByNumberOfFiles=>指示要分为几卷进行压缩，会自动计算每卷大小，然后分卷压缩
+        '''
+        cmd=[os.popen('ftype WinRAR').read().split('=')[1].split(' "')[0]]
+        cmd.append('a -ep1')
+        if inBack:cmd.append('-ibck')
+        if not toPartsBySize:
+            cmd.append('-v'+str(toPartsBySize)+'b')
+        elif toPartsByNumberOfFiles>1 and isinstance(toPartsByNumberOfFiles,int):
+            ps,paths=filesPath.split(' '),[]
+            for p in ps:
+                if p.find(':')==-1:
+                    paths[ps.count()]=paths[ps.count()]+' '+p
+                else:
+                    paths.append(p)
+            for path in paths:
+                pass
+        cmd.append(rarPath)
+        cmd.append(filesPath)
+        os.popen(' '.join(cmd))
+    @staticmethod
+    def Decompress(rarPath,toFolder='',inBack=True,selectedFiles=''):
+        u'''用WinRAR解压缩RAR压缩包
+ 
+        rarPath=>指示要进行解压的压缩包文件的路径
+        toFolder=>指示要解压到的文件夹路径，为空时，表示当前工作文件夹下
+        inBack=>指示解压工作是否放到后台进行
+        selectedFiles=>指示要解压的文件或文件夹，支持通配符
+        '''
+        cmd=[os.popen('ftype WinRAR').read().split('=')[1].split(' "')[0]]
+        cmd.append('e')
+        if inBack:cmd.append('-ibck')
+        if rarPath.find(' ')!=-1:
+            cmd.append('"'+rarPath+'"')
+        else:
+            cmd.append(rarPath)
+        if selectedFiles!='':cmd.append(selectedFiles)
+        if toFolder!='':
+            if toFolder.find(' '):
+                cmd.append('"'+toFolder+'"')
+            else:
+                cmd.append(toFolder)
+        os.popen(' '.join(cmd))
